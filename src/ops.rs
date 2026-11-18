@@ -17,6 +17,16 @@
 
 use std::{io::stdin, num::Wrapping};
 
+fn as_ascii(num: Wrapping<u8>) -> char {
+    num.0 as char
+}
+
+fn as_int(char: char) -> Wrapping<u8> {
+    match char.is_ascii() {
+        true => Wrapping(char as u8),
+        false => panic!("ERROR: the value read is not a valid ascii"),
+    }
+}
 /// A struct that represents a cell. Owns an 8-bit digit indicating its value and a u64 indicating its position in the cell list
 #[derive(Clone, Copy)]
 pub struct Cell {
@@ -54,14 +64,29 @@ impl Cell {
     pub fn print(&self) -> char {
         as_ascii(self.value)
     }
+
+    /// Get a value from stdin as ascii. Replace the Cell value, returns the parsed number
+    pub fn read(&mut self) -> Wrapping<u8> {
+        let mut buf = String::new();
+        stdin().read_line(&mut buf).unwrap();
+        let buf = buf.trim().chars().next().unwrap();
+        as_int(buf)
+    }
 }
 
 /// Represents the pointer. Owns a u64 indicating the current cell number.
 /// "current" means the cell the pointer is at.
-pub struct Pointer<'a> {
-    pub cell_pos: &'a mut Cell,
+pub struct Pointer {
+    pub cell_pos: usize,
 }
 
-fn as_ascii(num: Wrapping<u8>) -> char {
-    num.0 as char
+impl<'a> Pointer {
+    pub fn new(cell_pos: usize) -> Pointer {
+        Pointer { cell_pos }
+    }
+    /// Set the value of the current cell
+    pub fn move_ptr(&mut self, cell_pos: usize) -> &mut Self {
+        self.cell_pos = cell_pos;
+        self
+    }
 }
