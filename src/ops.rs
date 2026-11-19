@@ -47,14 +47,12 @@ impl Cell {
     }
 
     /// Increase Cell value by 1, returns the updated value
-    /// NO OVERFLOW!!! (for now)
     pub fn increase(&mut self) -> Wrapping<u8> {
         self.value += 1;
         self.value
     }
 
     /// Decrease Cell value by 1, returns the updated value
-    /// NO OVERFLOW!!! (for now)
     pub fn decrease(&mut self) -> Wrapping<u8> {
         self.value -= 1;
         self.value
