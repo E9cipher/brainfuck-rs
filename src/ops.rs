@@ -78,7 +78,7 @@ pub struct Pointer {
     pub cell_pos: usize,
 }
 
-impl<'a> Pointer {
+impl Pointer {
     pub fn new(cell_pos: usize) -> Pointer {
         Pointer { cell_pos }
     }
