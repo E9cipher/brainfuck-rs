@@ -46,7 +46,7 @@ fn main() {
     }
 }
 
-fn parse_bf<'a, 'b>(symb: char, curr_cell: &'a mut Cell, mut ptr_pos: &'b mut Pointer) -> () {
+fn parse_bf(symb: char, curr_cell: &mut Cell, mut ptr_pos: &mut Pointer) {
     let ptr_pos_lock = ptr_pos.cell_pos;
     let a = match symb {
         '+' => {
