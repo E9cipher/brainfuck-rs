@@ -33,17 +33,13 @@ pub struct Cell {
     /**
     An 8-bit integer, can be wrapped
     */
-    pub value: Wrapping<u8>,
-    /**
-    This Cell's position, 64 bits
-    */
-    pub pos: u64,
+    pub value: Wrapping<u8>
 }
 
 impl Cell {
     /// Create a new Cell
-    pub fn new(value: Wrapping<u8>, pos: u64) -> Cell {
-        Cell { value, pos }
+    pub fn new(value: Wrapping<u8>) -> Cell {
+        Cell { value }
     }
 
     /// Increase Cell value by 1, returns the updated value
