@@ -33,7 +33,7 @@ pub struct Cell {
     /**
     An 8-bit integer, can be wrapped
     */
-    pub value: Wrapping<u8>
+    pub value: Wrapping<u8>,
 }
 
 impl Cell {
