@@ -22,13 +22,13 @@ fn main() {
     // loop index
     let mut i = 0usize;
     loop {
-        let mut curr_cell = &mut cells[ptr_pos.cell_pos];
         let curr_char = program[i] as char;
+        let mut curr_cell = &mut cells[ptr_pos.cell_pos];
         match curr_char {
             '[' => {
                 let mut open_brackets_count = 1u64;
                 let mut close_bracket_pos = i;
-                let remaining_program = &program_str[i+1..]; // till the end
+                let remaining_program = &program_str[i + 1..]; // till the end
                 for a in remaining_program.chars() {
                     if a == '[' {
                         open_brackets_count += 1;
@@ -36,15 +36,19 @@ fn main() {
                         open_brackets_count -= 1;
                     }
                     if open_brackets_count == 0 {
-                        return;
+                        break;
                     }
                     close_bracket_pos += 1;
                 }
 
                 let loopsnip = &program[(i + 1)..close_bracket_pos];
-                while curr_cell.value != Wrapping(0u8) {
-                    parse_bf(program[i + 1] as char, curr_cell, &mut ptr_pos);
+                while cells[ptr_pos.cell_pos].value != Wrapping(0u8) {
+                    for instruction in loopsnip {
+                        let curr_cell = &mut cells[ptr_pos.cell_pos];
+                        parse_bf(*instruction as char, curr_cell, &mut ptr_pos);
+                    }
                 }
+                i = close_bracket_pos;
             }
             _ => parse_bf(program[i] as char, &mut curr_cell, &mut ptr_pos),
         }
@@ -68,7 +72,10 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, mut ptr_pos: &mut Pointer) {
             let _ = &curr_cell.read();
         }
         '<' => {
-            Pointer::move_ptr(&mut ptr_pos, (ptr_pos_lock - 1) as usize);
+            let previous_cell = ptr_pos_lock
+                .checked_sub(1)
+                .expect("Data pointer moved to invalid left cell");
+            Pointer::move_ptr(&mut ptr_pos, previous_cell);
         }
         '>' => {
             Pointer::move_ptr(&mut ptr_pos, (ptr_pos_lock + 1) as usize);
