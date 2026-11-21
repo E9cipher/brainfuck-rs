@@ -1,2 +1,2 @@
 # brainfuck-rs
-A simple brainfuck compiler, written in rust.
+A simple brainfuck interpreter, written in rust.
