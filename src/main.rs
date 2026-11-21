@@ -23,7 +23,7 @@ fn main() {
     let mut i = 0usize;
     while i < program.len() {
         let curr_char = program[i] as char;
-        let mut curr_cell = &mut cells[ptr_pos.cell_pos];
+        let curr_cell = &mut cells[ptr_pos.cell_pos];
         match curr_char {
             '[' => {
                 let mut open_brackets_count = 1u64;
@@ -48,7 +48,7 @@ fn main() {
                 }
                 i = close_bracket_pos;
             }
-            _ => parse_bf(program[i] as char, &mut curr_cell, &mut ptr_pos),
+            _ => parse_bf(program[i] as char, curr_cell, &mut ptr_pos),
         }
         i += 1;
     }
@@ -83,9 +83,9 @@ fn exec_body(body: &[u8], cells: &mut [Cell], ptr_pos: &mut Pointer) {
     }
 }
 
-fn parse_bf(symb: char, curr_cell: &mut Cell, mut ptr_pos: &mut Pointer) {
+fn parse_bf(symb: char, curr_cell: &mut Cell, ptr_pos: &mut Pointer) {
     let ptr_pos_lock = ptr_pos.cell_pos;
-    let a = match symb {
+    match symb {
         '+' => {
             curr_cell.increase();
         }
@@ -93,7 +93,7 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, mut ptr_pos: &mut Pointer) {
             curr_cell.decrease();
         }
         '.' => {
-            print!("{}", &curr_cell.print());
+            print!("{}", curr_cell.print());
             std::io::stdout().flush().expect("I/O error on flush");
         }
         ',' => {
@@ -103,14 +103,14 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, mut ptr_pos: &mut Pointer) {
             let previous_cell = ptr_pos_lock
                 .checked_sub(1)
                 .expect("Data pointer moved to invalid left cell");
-            Pointer::move_ptr(&mut ptr_pos, previous_cell);
+            Pointer::move_ptr(ptr_pos, previous_cell);
         }
         '>' => {
-            Pointer::move_ptr(&mut ptr_pos, (ptr_pos_lock + 1) as usize);
+            Pointer::move_ptr(ptr_pos, ptr_pos_lock + 1);
         }
         _ => (),
     };
-    a
+    
 }
 
 #[cfg(test)]
