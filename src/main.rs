@@ -22,16 +22,28 @@ fn main() {
     // loop index
     let mut i = 0usize;
     loop {
-        let mut curr_cell = &mut cells[i];
+        let mut curr_cell = &mut cells[ptr_pos.cell_pos];
         let curr_char = program[i] as char;
         match curr_char {
             '[' => {
-                let loopsnip = &program[(i + 1)..match &program_str.find(']') {
-                    Some(n) => *n,
-                    None => panic!("No closing ] found."),
-                }]; // get the loop fragment to run
-                while curr_cell.value != Wrapping(0u8) {
+                let mut open_brackets_count = 1u64;
+                let mut close_bracket_pos = i;
+                let remaining_program = &program_str[i+1..]; // till the end
+                for a in remaining_program.chars() {
+                    if a == '[' {
+                        open_brackets_count += 1;
+                    } else if a == ']' {
+                        open_brackets_count -= 1;
+                    }
+                    if open_brackets_count == 0 {
+                        return;
+                    }
+                    close_bracket_pos += 1;
+                }
 
+                let loopsnip = &program[(i + 1)..close_bracket_pos];
+                while curr_cell.value != Wrapping(0u8) {
+                    parse_bf(program[i + 1] as char, curr_cell, &mut ptr_pos);
                 }
             }
             _ => parse_bf(program[i] as char, &mut curr_cell, &mut ptr_pos),
