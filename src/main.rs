@@ -1,6 +1,6 @@
 mod ops;
 
-use std::num::Wrapping;
+use std::{io::Write, num::Wrapping};
 
 use crate::ops::{Cell, Pointer};
 
@@ -93,7 +93,8 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, mut ptr_pos: &mut Pointer) {
             curr_cell.decrease();
         }
         '.' => {
-            println!("{}", &curr_cell.print());
+            print!("{}", &curr_cell.print());
+            std::io::stdout().flush().expect("I/O error on flush");
         }
         ',' => {
             let _ = &curr_cell.read();
@@ -117,7 +118,7 @@ mod tests {
     use std::num::Wrapping;
 
     use crate::{
-        exec_body,
+        exec_body, main,
         ops::{self, Pointer},
     };
     #[test]
@@ -165,5 +166,10 @@ mod tests {
         assert_eq!(cells[0].value, Wrapping(0u8));
         assert_eq!(cells[1].value, Wrapping(0u8));
         assert_eq!(cells[2].value, Wrapping(4u8));
+    }
+
+    #[test]
+    fn test_main() {
+        main();
     }
 }
