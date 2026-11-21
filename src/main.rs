@@ -94,7 +94,6 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, ptr_pos: &mut Pointer) {
         }
         '.' => {
             print!("{}", curr_cell.print());
-            std::io::stdout().flush().expect("I/O error on flush");
         }
         ',' => {
             let _ = &curr_cell.read();
@@ -110,7 +109,7 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, ptr_pos: &mut Pointer) {
         }
         _ => (),
     };
-    
+    println!("");
 }
 
 #[cfg(test)]
