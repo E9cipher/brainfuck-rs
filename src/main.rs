@@ -21,7 +21,7 @@ fn main() {
 
     // loop index
     let mut i = 0usize;
-    loop {
+    while i < program.len() {
         let curr_char = program[i] as char;
         let mut curr_cell = &mut cells[ptr_pos.cell_pos];
         match curr_char {
@@ -36,6 +36,7 @@ fn main() {
                         open_brackets_count -= 1;
                     }
                     if open_brackets_count == 0 {
+                        close_bracket_pos += 1;
                         break;
                     }
                     close_bracket_pos += 1;
@@ -43,16 +44,42 @@ fn main() {
 
                 let loopsnip = &program[(i + 1)..close_bracket_pos];
                 while cells[ptr_pos.cell_pos].value != Wrapping(0u8) {
-                    for instruction in loopsnip {
-                        let curr_cell = &mut cells[ptr_pos.cell_pos];
-                        parse_bf(*instruction as char, curr_cell, &mut ptr_pos);
-                    }
+                    exec_body(loopsnip, &mut cells, &mut ptr_pos);
                 }
                 i = close_bracket_pos;
             }
             _ => parse_bf(program[i] as char, &mut curr_cell, &mut ptr_pos),
         }
         i += 1;
+    }
+}
+
+fn exec_body(body: &[u8], cells: &mut [Cell], ptr_pos: &mut Pointer) {
+    let mut position = 0;
+    while position < body.len() {
+        if body[position] == b'[' {
+            let mut nested_depth = 1;
+            let mut close = position + 1;
+            while nested_depth > 0 {
+                match body[close] {
+                    b'[' => nested_depth += 1,
+                    b']' => nested_depth -= 1,
+                    _ => (),
+                }
+                close += 1;
+            }
+            while cells[ptr_pos.cell_pos].value != Wrapping(0u8) {
+                exec_body(&body[position + 1..close - 1], cells, ptr_pos);
+            }
+            position = close;
+        } else {
+            parse_bf(
+                body[position] as char,
+                &mut cells[ptr_pos.cell_pos],
+                ptr_pos,
+            );
+            position += 1;
+        }
     }
 }
 
@@ -89,7 +116,10 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, mut ptr_pos: &mut Pointer) {
 mod tests {
     use std::num::Wrapping;
 
-    use crate::ops;
+    use crate::{
+        exec_body,
+        ops::{self, Pointer},
+    };
     #[test]
     fn test_cell_increase() {
         let mut a = ops::Cell::new(std::num::Wrapping(0u8));
@@ -112,5 +142,28 @@ mod tests {
         b.increase();
         assert_eq!(a.value, Wrapping(255u8));
         assert_eq!(b.value, Wrapping(0u8));
+    }
+
+    #[test]
+    fn test_loop_executes_entire_body() {
+        let mut cells = [ops::Cell::new(Wrapping(0u8)); 2];
+        let mut ptr_pos = Pointer::new(0);
+
+        exec_body(b"+++[>++<-]", &mut cells, &mut ptr_pos);
+
+        assert_eq!(cells[0].value, Wrapping(0u8));
+        assert_eq!(cells[1].value, Wrapping(6u8));
+    }
+
+    #[test]
+    fn test_nested_loops() {
+        let mut cells = [ops::Cell::new(Wrapping(0u8)); 3];
+        let mut ptr_pos = Pointer::new(0);
+
+        exec_body(b"++[>++[>+<-]<-]", &mut cells, &mut ptr_pos);
+
+        assert_eq!(cells[0].value, Wrapping(0u8));
+        assert_eq!(cells[1].value, Wrapping(0u8));
+        assert_eq!(cells[2].value, Wrapping(4u8));
     }
 }
