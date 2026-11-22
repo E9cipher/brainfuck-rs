@@ -6,18 +6,12 @@ use crate::ops::{Cell, Pointer};
 
 fn main() {
     let start = Instant::now();
-    // I know 30,000 cells is the standard, but testing with fewer seems better
-    // Using 50 cells for now
-    let mut cells: [Cell; 50] = [Cell::new(Wrapping(0u8)); 50];
+    let mut cells: [Cell; 30_000] = [Cell::new(Wrapping(0u8)); 30_000];
 
     // Init the pointer to 0
     let mut ptr_pos = Pointer::new(0); // first cell
 
-    // Hardcoding the program for now
-    // This is a program that prints "Hello World"
-    let program_str = String::from(
-        "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
-    );
+    let program_str = include_str!("../test/bitwidth.b");
     let program = program_str.as_bytes();
 
     // loop index
