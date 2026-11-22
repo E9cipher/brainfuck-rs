@@ -11,7 +11,10 @@ fn main() {
     // Init the pointer to 0
     let mut ptr_pos = Pointer::new(0); // first cell
 
-    let program_str = include_str!("../test/bitwidth.b");
+    let program_str = include_str!("../test/testing/Mandelbrot-tiny.b");
+    /* let program_str = String::from(
+        "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
+    ); */
     let program = program_str.as_bytes();
 
     // loop index
