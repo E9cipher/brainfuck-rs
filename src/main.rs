@@ -1,10 +1,11 @@
 mod ops;
 
-use std::{io::Write, num::Wrapping};
+use std::{num::Wrapping, time::Instant};
 
 use crate::ops::{Cell, Pointer};
 
 fn main() {
+    let start = Instant::now();
     // I know 30,000 cells is the standard, but testing with fewer seems better
     // Using 50 cells for now
     let mut cells: [Cell; 50] = [Cell::new(Wrapping(0u8)); 50];
@@ -52,6 +53,12 @@ fn main() {
         }
         i += 1;
     }
+    let duration = Instant::now().duration_since(start);
+    let formatted_duration = match duration.as_micros() {
+        0..=1000 => format!("{}µs", duration.as_micros()),
+        1001.. => format!("{}ms", duration.as_millis()),
+    };
+    println!("Ran in: {}", formatted_duration);
 }
 
 fn exec_body(body: &[u8], cells: &mut [Cell], ptr_pos: &mut Pointer) {
@@ -109,7 +116,6 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, ptr_pos: &mut Pointer) {
         }
         _ => (),
     };
-    println!("");
 }
 
 #[cfg(test)]
