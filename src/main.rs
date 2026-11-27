@@ -1,6 +1,6 @@
 mod ops;
 
-use std::{num::Wrapping, time::Instant};
+use std::{collections::HashMap, num::Wrapping, time::Instant};
 
 use crate::ops::{Cell, Pointer};
 
@@ -11,10 +11,10 @@ fn main() {
     // Init the pointer to 0
     let mut ptr_pos = Pointer::new(0); // first cell
 
-    let program_str = include_str!("../test/testing/Mandelbrot-tiny.b");
-    /* let program_str = String::from(
+    // let program_str = include_str!("../test/testing/Mandelbrot-tiny.b");
+    let program_str = String::from(
         "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
-    ); */
+    );
     let program = program_str.as_bytes();
 
     // loop index
@@ -87,6 +87,29 @@ fn exec_body(body: &[u8], cells: &mut [Cell], ptr_pos: &mut Pointer) {
     }
 }
 
+fn group(body: &[u8]) -> HashMap<char, u64> {
+    let mut group: HashMap<char, u64> = HashMap::new();
+    let mut count = 1; // account for first digit
+    for (index, i) in body.iter().enumerate() {
+        let currchar = *i as char;
+        if body.get(index + 1) == Some(i) {
+            count += 1;
+            continue;
+        }
+        group.insert(currchar, count);
+        count = 1;
+    }
+    group
+}
+
+fn predict(body: &[u8], c: char) -> Option<u64> {
+    let grouped = group(body);
+    match grouped.contains_key(&c) {
+        true => Some(grouped[&c]),
+        false => None,
+    }
+}
+
 fn parse_bf(symb: char, curr_cell: &mut Cell, ptr_pos: &mut Pointer) {
     let ptr_pos_lock = ptr_pos.cell_pos;
     match symb {
@@ -117,10 +140,10 @@ fn parse_bf(symb: char, curr_cell: &mut Cell, ptr_pos: &mut Pointer) {
 
 #[cfg(test)]
 mod tests {
-    use std::num::Wrapping;
+    use std::{collections::HashMap, num::Wrapping};
 
     use crate::{
-        exec_body, main,
+        exec_body, group, main,
         ops::{self, Pointer},
     };
     #[test]
@@ -168,6 +191,17 @@ mod tests {
         assert_eq!(cells[0].value, Wrapping(0u8));
         assert_eq!(cells[1].value, Wrapping(0u8));
         assert_eq!(cells[2].value, Wrapping(4u8));
+    }
+
+    #[test]
+    fn test_grouped() {
+        let program = "++++++----".as_bytes();
+        let res = group(program);
+        let expected: HashMap<char, u64> = HashMap::from([
+            ("+".as_bytes()[0] as char, 6),
+            ("-".as_bytes()[0] as char, 4),
+        ]);
+        assert_eq!(res, expected);
     }
 
     #[test]
